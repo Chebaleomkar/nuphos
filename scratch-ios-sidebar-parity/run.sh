@@ -23,7 +23,7 @@ run() { # name udid
   [ "${PIPESTATUS[0]}" -eq 0 ] || status=1
   xcrun simctl shutdown "$udid"
 }
-run iphone "$(boot iphone "$(type_of 'iPhone 17 Pro')")"
+[ -n "${SKIP_IPHONE:-1}" ] || run iphone "$(boot iphone "$(type_of 'iPhone 17 Pro')")"
 run ipad "$(boot ipad "$(type_of 'iPad Pro 13-inch.*')")"
 ls -laR "$out"
 exit $status
