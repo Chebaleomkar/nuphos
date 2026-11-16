@@ -1,5 +1,24 @@
 import SwiftUI
 
+/// The secure input card of a question shown away from its conversation, in a Bot's chat or the
+/// Inbox: the value is saved, and the reply sent, in the conversation that asked. It shows once
+/// that conversation has loaded, since whether the viewer may send to it is known only then.
+struct AskedSecretCard: View {
+    @Environment(AgentStore.self) private var store
+    let question: BotQuestion
+    let part: ChatPart.ToolPart
+    let teamId: String
+    var onSaved: (() -> Void)?
+    @State private var session: ChatSession?
+
+    var body: some View {
+        Group {
+            if let session, session.loaded { SecretCard(part: part, reply: nil, session: session, onSaved: onSaved) }
+        }
+        .task { if session == nil { session = store.session(sessionId: question.sessionId, title: question.title, teamId: teamId) } }
+    }
+}
+
 /// A secret the agent asked for, like the desktop's `SecretCard`: a masked
 /// field whose value goes straight to a file on the agent's runtime. Only the
 /// file's path is sent as the reply; the value never enters the transcript.
