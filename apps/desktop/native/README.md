@@ -13,3 +13,4 @@ The `sidebar-native-gestures` Vite `buildStart` plugin invokes `scripts/build-si
 - `package.json` copies `build/native/*.node` into the application's `Resources/native` directory using `extraResources`. Build outputs remain ignored by Git. Concurrent builds compile in unique directories under `build/native` and atomically replace the final binary, so a dev watcher and a manual build do not share a linker output.
 
 The script skips compilation on Linux and Windows. At runtime the main-process loader skips non-macOS hosts; if the binary cannot load on macOS, it logs a warning and the sidebar retains wheel/touch paging with the gesture quiet-timeout fallback, without native release events or haptics.
+
