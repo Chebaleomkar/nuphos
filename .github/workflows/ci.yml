@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
   merge_group:
+  # Runs only the end-to-end job, on any branch: for evidence a pull request cannot carry.
+  workflow_dispatch:
 
 # Merge-group refs (gh-readonly-queue/main/pr-N-<sha>) are unique per group, so
 # queued runs never cancel each other; a PR's new push still cancels its old run.
@@ -17,6 +19,7 @@ permissions:
 jobs:
   format:
     name: Format (prettier --check)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -35,6 +38,7 @@ jobs:
   # it reports success there instead of blocking the queue.
   dco:
     name: DCO
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-slim
     steps:
       - name: Skip in the merge queue
@@ -59,6 +63,7 @@ jobs:
 
   changes:
     name: Detect changed apps
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04-arm
     outputs:
       # A version-only diff (a release PR) skips these; see the step below.
@@ -422,7 +427,8 @@ jobs:
   e2e:
     name: Desktop against a real backend
     needs: changes
-    if: needs.changes.outputs.e2e == 'true'
+    # On dispatch `changes` is skipped, which skips this job unless the condition says otherwise.
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.changes.outputs.e2e == 'true') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
