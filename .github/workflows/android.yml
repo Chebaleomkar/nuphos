@@ -8,6 +8,11 @@ on:
       - '.github/workflows/android-release.yml'
   workflow_dispatch:
 
+# A PR's new push cancels its old run, as in ci.yml.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
